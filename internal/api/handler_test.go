@@ -253,6 +253,13 @@ func TestClientCancellationStopsUpstreamCall(t *testing.T) {
 		cancel()
 		wg.Wait()
 
+		// The streaming provider observes cancellation in its own goroutine, which can
+		// finish after the handler has already returned, so wait for it rather than
+		// asserting immediately.
+		deadline := time.Now().Add(time.Second)
+		for p.CancelCount() < 1 && time.Now().Before(deadline) {
+			time.Sleep(time.Millisecond)
+		}
 		if p.CancelCount() != 1 {
 			t.Errorf("expected mock provider cancel count 1, got %d", p.CancelCount())
 		}
