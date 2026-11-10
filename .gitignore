@@ -1,0 +1,27 @@
+# Go
+/bin/
+*.exe
+*.test
+*.out
+coverage.*
+
+# Local runtime artefacts
+dump.rdb
+*.log
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# relay-ui (Next.js)
+relay-ui/node_modules/
+relay-ui/.next/
+relay-ui/out/
+relay-ui/next-env.d.ts
+relay-ui/*.tsbuildinfo
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

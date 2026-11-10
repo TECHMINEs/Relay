@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Sharp Edged Plasma — strictly sharp edges, glowing focus */
+*, *::before, *::after {
+  border-radius: 0px !important;
+}
+
+button:focus-visible, a:focus-visible, input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #FF0000 !important;
+  box-shadow: 0 0 0 1px #FF0000, 0 0 14px rgba(255, 0, 0, 0.6) !important;
+}
+
+::selection { background: rgba(255, 0, 0, 0.4); color: #fff; }
+
+:root {
+  --background: #000000;
+  --foreground: #f3f4f6;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Custom scrollbars for cybernetic terminal aesthetic */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #FF0000;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #FF5F1F;
+}
