@@ -10,33 +10,28 @@ module.exports = {
     ],
   },
   theme: {
-    // Sharp Edged Plasma: strictly sharp corners everywhere
+    // Sharp corners everywhere, as on techmines.github.io
     borderRadius: {
       none: "0px", sm: "0px", DEFAULT: "0px", md: "0px", lg: "0px",
       xl: "0px", "2xl": "0px", "3xl": "0px", full: "0px",
     },
     extend: {
       colors: {
+        // TECHMINES portfolio tokens (techmines.github.io)
+        panel: { DEFAULT: '#0E0E0E', 2: '#171717' },
+        line: '#2E2E2E',
+        stroke: '#4D4D4D',
+        dim: '#A9A9A9',
+        body: '#E2E2E2',
         background: "#000000",
         foreground: "#ededed",
-        red: { 400: "#FF3B3B", 500: "#FF0000", 600: "#FF0000", 700: "#DC2626" },
-        orange: { 400: "#FF7A45", 500: "#FF5F1F" },
-        cyan: { 300: "#66FFFF", 400: "#00FFFF", 500: "#00E5E5" },
+        red: { 400: "#FF3B3B", 500: "#FF2626", 600: "#FF2626", 700: "#F5141F" },
         green: { 400: "#39FF14", 500: "#39FF14" },
-        emerald: { 400: "#39FF14", 500: "#32E012" },
-        cyber: { red: "#FF0000", orange: "#FF5F1F", cyan: "#00FFFF", green: "#39FF14" },
       },
       fontFamily: {
-        mono: [
-          "ui-monospace",
-          "SFMono-Regular",
-          "Menlo",
-          "Monaco",
-          "Consolas",
-          "Liberation Mono",
-          "Courier New",
-          "monospace",
-        ],
+        display: ['var(--font-chakra)', '"Chakra Petch"', '"Arial Narrow"', 'sans-serif'],
+        sans: ['var(--font-plex)', '"IBM Plex Sans"', 'system-ui', 'sans-serif'],
+        mono: ['var(--font-jetbrains)', '"JetBrains Mono"', 'ui-monospace', 'Menlo', 'monospace'],
       },
     },
   },

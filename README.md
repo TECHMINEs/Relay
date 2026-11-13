@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="relay-ui/public/techmines-logo.jpg" alt="TECHMINES" width="96" />
+<a href="https://techmines.github.io/"><img src="relay-ui/public/logo-lockup.svg" alt="Relay by TECHMINES" height="84" /></a>
 
 # Relay
 
