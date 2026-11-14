@@ -1,0 +1,43 @@
+services:
+  - type: web
+    name: relay-gateway
+    env: docker
+    dockerfilePath: Dockerfile
+    plan: starter
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: DEFAULT_PROVIDER
+        value: mock
+      - key: DATABASE_URL
+        fromDatabase:
+          name: relay-postgres
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: relay-redis
+          property: connectionString
+
+  - type: web
+    name: relay-console
+    env: node
+    rootDir: relay-ui
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    plan: free
+    envVars:
+      - key: RELAY_GATEWAY_URL
+        fromService:
+          type: web
+          name: relay-gateway
+          property: host
+
+databases:
+  - name: relay-postgres
+    plan: starter
+    databaseName: relay
+    user: postgres
+
+# Redis for token bucket rate limiting
+# Managed Redis: $10/mo on Render, or KeyDB/Redis container on Railway
