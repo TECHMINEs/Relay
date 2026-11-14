@@ -16,7 +16,7 @@
 
 </div>
 
-Relay is a drop-in replacement for the OpenAI `/v1/chat/completions` and `/v1/embeddings` endpoints. It routes each request across weighted providers such as Ollama, with per-provider circuit breakers and jittered retries. Every call is authenticated, rate-limited, metered in Prometheus and logged asynchronously. A Next.js console lets you chat through the gateway and watch its live metrics.
+Relay is a drop-in replacement for the OpenAI `/v1/chat/completions` and `/v1/embeddings` endpoints. It routes each request across weighted providers such as Ollama, with per-provider circuit breakers and jittered retries. When the supporting services are configured, requests are authenticated, rate-limited, metered in Prometheus and logged asynchronously. The GitHub Pages frontend is a browser-only walkthrough of routing and fallback; its providers, responses, and metrics are simulated.
 
 ---
 
@@ -25,7 +25,7 @@ Relay is a drop-in replacement for the OpenAI `/v1/chat/completions` and `/v1/em
 ```mermaid
 flowchart LR
     Client(["OpenAI SDK / curl"])
-    UI["relay-ui (Next.js) :3000<br/>Playground · Metrics"]
+    UI["relay-ui (Next.js)<br/>Browser walkthrough"]
 
     subgraph Gateway["Relay gateway (Go, chi) :8080"]
         Auth["auth middleware<br/>Bearer → SHA-256 lookup"]
@@ -44,7 +44,6 @@ flowchart LR
     Prom["Prometheus"] --> Graf["Grafana"]
 
     Client --> Auth
-    UI -->|"/api/relay/v1/* rewrite"| Auth
     Auth --> PG
     Auth --> RL <-->|EVALSHA| Redis
     RL --> H --> R --> CB
@@ -113,7 +112,7 @@ npm install
 npm run dev
 ```
 
-Point it at a gateway on another port with `RELAY_GATEWAY_URL=http://localhost:8081 npm run dev`. The console sends no API key, so use it with the gateway in Option A mode.
+The console is a self-contained walkthrough and does not call the gateway. Use the `curl` examples above to exercise the real API, and Prometheus or Grafana from the full stack to inspect live metrics.
 
 **Tests and load:**
 
@@ -146,7 +145,8 @@ k6 run loadtest/chaos.js           # failover under injected faults (POST /__cha
 
 ## Known Limitations
 
-- **No console sign-in:** relay-ui has no authentication and calls the gateway without an API key.
+- **No console sign-in:** relay-ui has no authentication; the browser walkthrough does not require an API key.
+- **Browser demo:** the static console illustrates a primary attempt and optional fallback with scripted results and session-only counters. It does not call a model or expose live gateway metrics.
 - **Two providers:** only Ollama and the mock are implemented. The provider interface is the extension point for OpenAI, Anthropic and others.
 
 ---
