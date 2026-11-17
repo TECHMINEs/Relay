@@ -64,14 +64,12 @@ func (m *MockProvider) SetErrorRate(rate float64) {
 func (m *MockProvider) applyLatencyAndFaults(ctx context.Context) error {
 	m.callCount.Add(1)
 
-	// Stall forever mode
 	if m.cfg.MockStallForever {
 		<-ctx.Done()
 		m.cancelCount.Add(1)
 		return ctx.Err()
 	}
 
-	// Latency simulation
 	if m.cfg.MockLatencyMax > 0 {
 		var waitDur time.Duration
 		if m.cfg.MockLatencyMax > m.cfg.MockLatencyMin {
@@ -90,7 +88,6 @@ func (m *MockProvider) applyLatencyAndFaults(ctx context.Context) error {
 		}
 	}
 
-	// Error rate simulation
 	curRate := m.ErrorRate()
 	if curRate > 0 {
 		n, _ := rand.Int(rand.Reader, big.NewInt(10000))
@@ -139,7 +136,6 @@ func (m *MockProvider) Chat(ctx context.Context, req *ChatRequest) (*Response, e
 
 // ChatStream produces an OpenAI-compatible stream of chunk tokens.
 func (m *MockProvider) ChatStream(ctx context.Context, req *ChatRequest) (<-chan Chunk, error) {
-	// First check faults/initial latency before returning channel or while streaming
 	if m.cfg.MockStallForever {
 		m.callCount.Add(1)
 		ch := make(chan Chunk)
@@ -162,7 +158,7 @@ func (m *MockProvider) ChatStream(ctx context.Context, req *ChatRequest) (<-chan
 	go func() {
 		defer close(ch)
 
-		// First chunk provides role
+		// The first chunk carries the role.
 		firstChunk := Chunk{
 			ID:      id,
 			Object:  "chat.completion.chunk",

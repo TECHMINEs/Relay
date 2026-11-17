@@ -174,7 +174,7 @@ func TestWindowRingBufferEviction(t *testing.T) {
 	_ = cb2.Allow()
 	cb2.RecordSuccess() // back to Closed, window reset
 
-	// Now 4 successes — should not trip (only 4 results, below MinRequests?)
+	// Four successes is below MinRequests, so the breaker stays closed.
 	recordN(cb2, 4, false)
 	if s := cb2.State(); s != StateClosed {
 		t.Fatalf("expected Closed after recovery with clean window, got %s", s)

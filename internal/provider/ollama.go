@@ -211,7 +211,7 @@ func (o *OllamaProvider) ChatStream(ctx context.Context, req *ChatRequest) (<-ch
 	}
 	httpReq.Header.Set("Content-Type", "application/json")
 
-	// Use transport directly or client with context so streaming is not cut off by client.Timeout
+	// No client timeout here: it would cut long streams off; the context bounds the request.
 	transport := o.httpClient.Transport
 	if transport == nil {
 		transport = http.DefaultTransport
@@ -236,7 +236,6 @@ func (o *OllamaProvider) ChatStream(ctx context.Context, req *ChatRequest) (<-ch
 		defer close(ch)
 
 		scanner := bufio.NewScanner(httpResp.Body)
-		// Set a reasonably large buffer for long tokens if needed
 		scanner.Buffer(make([]byte, 64*1024), 1024*1024)
 
 		isFirst := true

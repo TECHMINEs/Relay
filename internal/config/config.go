@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Config holds all service configurations.
+// Config is the service configuration.
 type Config struct {
 	Port            int           `json:"port"`
 	ReadTimeout     time.Duration `json:"read_timeout"`
@@ -42,12 +42,12 @@ type Config struct {
 	RetryBaseDelay      time.Duration `json:"retry_base_delay"`
 	RetryMaxDelay       time.Duration `json:"retry_max_delay"`
 
-	// Infrastructure config (used in later phases)
+	// Infrastructure
 	DatabaseURL string `json:"database_url"`
 	RedisURL    string `json:"redis_url"`
 }
 
-// Load loads configuration from environment variables with sensible defaults.
+// Load reads the configuration from the environment, with defaults.
 func Load() (*Config, error) {
 	cfg := &Config{
 		Port:               getEnvInt("PORT", 8080),

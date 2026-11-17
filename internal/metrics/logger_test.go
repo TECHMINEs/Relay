@@ -68,7 +68,6 @@ func TestAsyncLoggerDropsWhenFull(t *testing.T) {
 	defer cancel()
 	al.Start(ctx)
 
-	// Reset global counter.
 	Global.DroppedLogEntries.Store(0)
 
 	// Send 10 entries into a buffer of size 2 without the logger running its loop.

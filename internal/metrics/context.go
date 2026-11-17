@@ -1,13 +1,3 @@
-// Package metrics — context helpers for label propagation.
-//
-// The middleware injects a mutable *RequestLabels into the context before
-// calling the next handler.  Downstream handlers (e.g. ChatCompletions) write
-// provider and model into it.  After the handler returns the middleware reads
-// the values back for accurate label attribution.
-//
-// This avoids the classic problem of reading context values that were set on a
-// *copy* of the request inside the handler; a pointer in the context is
-// reachable from both the outer middleware and the inner handler.
 package metrics
 
 import "context"
@@ -16,9 +6,10 @@ type contextKey int
 
 const ctxLabels contextKey = iota
 
-// RequestLabels is a mutable bag of per-request Prometheus label values.
-// It is safe for concurrent read/write only within the single goroutine that
-// processes an HTTP request (standard Go HTTP handler guarantee).
+// RequestLabels is a mutable bag of per-request label values. Middleware puts a
+// pointer to it in the context so handlers can set provider and model on a
+// request copy and the middleware still reads them back. Only touched by the
+// goroutine serving the request.
 type RequestLabels struct {
 	Provider string
 	Model    string

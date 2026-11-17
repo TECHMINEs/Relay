@@ -271,7 +271,6 @@ func TestMetricsEndpointExposesCollectors(t *testing.T) {
 		t.Fatalf("status = %d, want 200", resp.StatusCode)
 	}
 
-	// Read the body.
 	var buf strings.Builder
 	if _, err := io.Copy(&buf, resp.Body); err != nil {
 		t.Fatalf("read body: %v", err)

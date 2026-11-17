@@ -79,8 +79,8 @@ func NewHandler(p provider.Provider, opts ...HandlerOption) *Handler {
 	return h
 }
 
-// NewHandlerWithRouter creates a Handler that uses the reliability router for
-// chat and embedding requests.  The router itself implements provider.Provider.
+// NewHandlerWithRouter creates a Handler backed by the reliability router,
+// which itself implements provider.Provider.
 func NewHandlerWithRouter(rt *router.Router, opts ...HandlerOption) *Handler {
 	h := &Handler{
 		provider: rt,
@@ -92,8 +92,7 @@ func NewHandlerWithRouter(rt *router.Router, opts ...HandlerOption) *Handler {
 	return h
 }
 
-// NewHandlerWithMetrics creates a Handler wired to the given reliability router
-// and Prometheus metrics.
+// NewHandlerWithMetrics creates a router-backed Handler with Prometheus metrics.
 func NewHandlerWithMetrics(rt *router.Router, m *metrics.Metrics, opts ...HandlerOption) *Handler {
 	h := &Handler{
 		provider: rt,
@@ -106,9 +105,8 @@ func NewHandlerWithMetrics(rt *router.Router, m *metrics.Metrics, opts ...Handle
 	return h
 }
 
-// RegisterRoutes registers OpenAI-compatible endpoints on a chi router.
-// If h.metrics is non-nil, the Prometheus middleware is applied globally and
-// a GET /metrics endpoint is added.
+// RegisterRoutes mounts the OpenAI-compatible endpoints, plus /metrics when a
+// registry is given.
 func RegisterRoutes(r chi.Router, h *Handler, reg prometheus.Gatherer) {
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Recoverer)
@@ -126,7 +124,6 @@ func RegisterRoutes(r chi.Router, h *Handler, reg prometheus.Gatherer) {
 		}).ServeHTTP)
 	}
 
-	// Protected API routes
 	r.Group(func(apiRouter chi.Router) {
 		if h.auth != nil {
 			apiRouter.Use(auth.Middleware(h.auth))
@@ -215,7 +212,6 @@ func (h *Handler) ChatCompletions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Record token usage metrics and async log
 	providerName := metrics.ProviderFromContext(ctx)
 	if h.metrics != nil && resp != nil {
 		h.metrics.TokensTotal.WithLabelValues(providerName, req.Model, "prompt").Add(float64(resp.Usage.PromptTokens))

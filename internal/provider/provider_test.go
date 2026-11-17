@@ -82,7 +82,6 @@ func TestMockProvider(t *testing.T) {
 			t.Errorf("last chunk must have finish_reason stop")
 		}
 
-		// Concatenate content
 		var combined string
 		for _, c := range chunks {
 			combined += c.Choices[0].Delta.Content

@@ -1,5 +1,5 @@
-// Relay steady-state load test
-// Run: k6 run loadtest/steady.js --summary-export loadtest/results/steady.json
+// Steady-state load test.
+// k6 run loadtest/steady.js --summary-export loadtest/results/steady.json
 //
 // Scenario: 30 VUs ramp up over 10s, hold for 60s, ramp down over 10s.
 // Target: mock provider (no real upstream needed).
@@ -8,14 +8,11 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
 import { Trend, Counter, Rate } from 'k6/metrics';
-
-// ─── Custom metrics ───────────────────────────────────────────────────────────
 const chatLatency   = new Trend('relay_chat_latency_ms',   true);
 const embedLatency  = new Trend('relay_embed_latency_ms',  true);
 const errorCount    = new Counter('relay_errors');
 const errorRate     = new Rate('relay_error_rate');
 
-// ─── Config ───────────────────────────────────────────────────────────────────
 const BASE_URL = __ENV.RELAY_URL || 'http://localhost:8080';
 
 export const options = {
@@ -41,8 +38,6 @@ export const options = {
   },
   summaryTrendStats: ['avg', 'min', 'med', 'max', 'p(90)', 'p(95)', 'p(99)'],
 };
-
-// ─── Helpers ─────────────────────────────────────────────────────────────────
 const chatPayload = JSON.stringify({
   model: 'gpt-4',
   messages: [{ role: 'user', content: 'Hello from k6 steady load test' }],
@@ -54,8 +49,6 @@ const embedPayload = JSON.stringify({
 });
 
 const headers = { 'Content-Type': 'application/json' };
-
-// ─── Virtual User ────────────────────────────────────────────────────────────
 export default function () {
   // 80% chat, 20% embeddings — mirrors typical LLM gateway traffic.
   if (Math.random() < 0.8) {

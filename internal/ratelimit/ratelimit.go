@@ -103,7 +103,6 @@ func (l *Limiter) evalWithFallback(ctx context.Context, keys []string, args []an
 		// Script was flushed (e.g. Redis restart). Fall through to EVAL.
 	}
 
-	// Load the script and get a fresh SHA.
 	newSHA, err := loadScript(ctx, l.rdb)
 	if err != nil {
 		return nil, err

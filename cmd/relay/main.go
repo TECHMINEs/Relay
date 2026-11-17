@@ -32,9 +32,7 @@ func main() {
 		log.Fatalf("failed to load configuration: %v", err)
 	}
 
-	// ─── Prometheus registry ───────────────────────────────────────────────
 	reg := prometheus.NewRegistry()
-	// Include Go runtime and process collectors for full observability.
 	reg.MustRegister(collectors.NewGoCollector())
 	reg.MustRegister(collectors.NewProcessCollector(collectors.ProcessCollectorOpts{}))
 
@@ -43,7 +41,6 @@ func main() {
 		log.Fatalf("failed to create metrics: %v", err)
 	}
 
-	// ─── Breaker + retry config ────────────────────────────────────────────
 	bCfg := breaker.Config{
 		WindowSize:        cfg.BreakerWindowSize,
 		FailureThreshold:  cfg.BreakerFailureThreshold,
@@ -66,12 +63,8 @@ func main() {
 		log.Fatalf("failed to build router: %v", err)
 	}
 
-	// ─── Circuit-breaker state poller ─────────────────────────────────────
-	// Publish the state of each breaker to Prometheus every 5 seconds so
-	// Grafana dashboards can visualise state transitions over time.
 	go pollBreakerStates(entries, m)
 
-	// ─── Postgres Store & Async Logger ─────────────────────────────────────
 	var (
 		pgStore     *store.Store
 		asyncLogger *metrics.AsyncLogger
@@ -92,7 +85,6 @@ func main() {
 		}
 	}
 
-	// ─── Redis & Rate Limiter ──────────────────────────────────────────────
 	var limiter *ratelimit.Limiter
 	if cfg.RedisURL != "" {
 		opt, err := redis.ParseURL(cfg.RedisURL)
@@ -119,7 +111,6 @@ func main() {
 		}
 	}
 
-	// ─── HTTP server ───────────────────────────────────────────────────────
 	chiRouter := chi.NewRouter()
 
 	var handlerOpts []api.HandlerOption
@@ -168,9 +159,7 @@ func main() {
 	log.Println("Relay gateway stopped cleanly")
 }
 
-// buildProviderEntries constructs the provider list based on DEFAULT_PROVIDER.
-// For production use, multiple providers with different weights would be
-// loaded from a config file; this wires up the env-driven providers.
+// buildProviderEntries wires up the provider selected by DEFAULT_PROVIDER.
 func buildProviderEntries(cfg *config.Config, bCfg breaker.Config) []router.ProviderEntry {
 	switch cfg.DefaultProvider {
 	case "ollama":
@@ -191,8 +180,7 @@ func buildProviderEntries(cfg *config.Config, bCfg breaker.Config) []router.Prov
 	}
 }
 
-// pollBreakerStates periodically updates the relay_circuit_breaker_state
-// gauge for each provider entry.  Runs until the process exits.
+// pollBreakerStates publishes each breaker's state to Prometheus every 5s.
 func pollBreakerStates(entries []router.ProviderEntry, m *metrics.Metrics) {
 	ticker := time.NewTicker(5 * time.Second)
 	defer ticker.Stop()

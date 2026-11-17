@@ -107,9 +107,7 @@ func TestEndToEndAuthRateLimitAndLogging(t *testing.T) {
 
 	chatPayload := `{"model":"gpt-4","messages":[{"role":"user","content":"hello"}]}`
 
-	// ------------------------------------------------------------------------
-	// Test 1: Unauthenticated request returns 401 Unauthorized
-	// ------------------------------------------------------------------------
+	// Unauthenticated request returns 401 Unauthorized.
 	t.Run("unauthenticated request returns 401", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodPost, "/v1/chat/completions", bytes.NewBufferString(chatPayload))
 		req.Header.Set("Content-Type", "application/json")
@@ -130,9 +128,7 @@ func TestEndToEndAuthRateLimitAndLogging(t *testing.T) {
 		}
 	})
 
-	// ------------------------------------------------------------------------
-	// Test 2: Fully authorized request succeeds (HTTP 200) and is logged
-	// ------------------------------------------------------------------------
+	// Fully authorized request succeeds (HTTP 200) and is logged.
 	t.Run("fully authorized request succeeds", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodPost, "/v1/chat/completions", bytes.NewBufferString(chatPayload))
 		req.Header.Set("Content-Type", "application/json")
@@ -161,9 +157,7 @@ func TestEndToEndAuthRateLimitAndLogging(t *testing.T) {
 		}
 	})
 
-	// ------------------------------------------------------------------------
-	// Test 3: Request with exhausted rate limit bucket returns 429 Too Many Requests
-	// ------------------------------------------------------------------------
+	// Request with exhausted rate limit bucket returns 429 Too Many Requests.
 	t.Run("exhausted rate limit bucket returns 429", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodPost, "/v1/chat/completions", bytes.NewBufferString(chatPayload))
 		req.Header.Set("Content-Type", "application/json")

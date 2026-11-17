@@ -1,4 +1,3 @@
-// Package metrics — HTTP middleware for Prometheus instrumentation.
 package metrics
 
 import (
@@ -25,20 +24,14 @@ func (sr *statusRecorder) Flush() {
 	}
 }
 
-// Middleware returns a chi-compatible HTTP middleware that records
-// relay_requests_total and relay_request_duration_seconds for every request.
-//
-// It injects a mutable *RequestLabels bag into the request context before
-// calling the next handler.  Downstream handlers (e.g. ChatCompletions) write
-// provider and model names into the bag via ContextWithProvider /
-// ContextWithModel.  The middleware reads those values back after the handler
-// returns for accurate Prometheus label attribution.
+// Middleware records relay_requests_total and relay_request_duration_seconds,
+// labelled with the provider and model the handler sets via ContextWithProvider
+// and ContextWithModel.
 func Middleware(m *Metrics) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			start := time.Now()
 
-			// Inject a mutable label bag so handlers can write provider/model.
 			ctx, lb := contextWithLabels(r.Context())
 			r = r.WithContext(ctx)
 
@@ -48,7 +41,6 @@ func Middleware(m *Metrics) func(http.Handler) http.Handler {
 			elapsed := time.Since(start).Seconds()
 			status := strconv.Itoa(rec.status)
 
-			// Read labels written by the handler (or "unknown" if unset).
 			provider := lb.Provider
 			if provider == "" {
 				provider = "unknown"

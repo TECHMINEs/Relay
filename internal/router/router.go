@@ -208,8 +208,7 @@ func (rt *Router) pickEntry() (*ProviderEntry, error) {
 		}
 	}
 	if selected == nil {
-		// Fallback: should be unreachable, but defend against floating-point
-		// edge cases in the random range.
+		// Guards against floating-point edge cases in the random draw.
 		selected = &rt.entries[candidates[len(candidates)-1].idx]
 	}
 
@@ -249,7 +248,6 @@ func (rt *Router) RetryAfter() int {
 func (rt *Router) doWithRetry(ctx context.Context, fn func(ctx context.Context) error) error {
 	var lastErr error
 	for attempt := 0; attempt < rt.retry.MaxAttempts; attempt++ {
-		// Per-attempt timeout
 		var (
 			attemptCtx    context.Context
 			attemptCancel context.CancelFunc
@@ -269,8 +267,7 @@ func (rt *Router) doWithRetry(ctx context.Context, fn func(ctx context.Context) 
 
 		lastErr = err
 
-		// Never retry if the parent context is done (client disconnect or overall
-		// deadline).
+		// Never retry once the client has gone or the overall deadline has passed.
 		if ctx.Err() != nil {
 			return lastErr
 		}
@@ -283,7 +280,6 @@ func (rt *Router) doWithRetry(ctx context.Context, fn func(ctx context.Context) 
 			break
 		}
 
-		// Compute jittered backoff.
 		wait := jitteredBackoff(attempt, rt.retry.BaseDelay, rt.retry.MaxDelay)
 		select {
 		case <-ctx.Done():
